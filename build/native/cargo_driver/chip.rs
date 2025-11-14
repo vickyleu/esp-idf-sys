@@ -50,7 +50,7 @@ impl Chip {
             "riscv32imc-esp-espidf" => &[Chip::ESP32C3, Chip::ESP32C2],
             // Keep C6 at the first in the list, so it is picked up by default; as H2 does not have a Wifi
             "riscv32imac-esp-espidf" => {
-                &[Chip::ESP32C6, Chip::ESP32C61, Chip::ESP32C5, Chip::ESP32H2]
+                &[Chip::ESP32C6, Chip::ESP32C61, Chip::ESP32C5, Chip::ESP32H2, Chip::ESP32P4]
             }
             "riscv32imafc-esp-espidf" => &[Chip::ESP32P4],
             _ => bail!("Unsupported target '{}'", rust_target_triple),
