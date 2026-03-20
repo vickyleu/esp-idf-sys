@@ -596,7 +596,9 @@ pub fn build() -> Result<EspIdfBuildOutput> {
                 .force_ldproxy(true)
                 .build()?,
         ),
-        bindgen: bindgen::Factory::from_cmake(&target.compile_groups[0])?.with_linker(&compiler),
+        bindgen: bindgen::Factory::from_cmake(&target.compile_groups[0])?
+            .with_linker(&compiler)
+            .with_clang_args(bindgen_compat_clang_args(&compiler, &build_info.esp_idf_dir)?),
         components: EspIdfComponents::from(components),
         kconfig_args: Box::new(
             kconfig::try_from_json_file(sdkconfig_json.clone())
@@ -608,6 +610,33 @@ pub fn build() -> Result<EspIdfBuildOutput> {
     };
 
     Ok(build_output)
+}
+
+fn bindgen_compat_clang_args(compiler: &Path, esp_idf_dir: &Path) -> Result<Vec<String>> {
+    let compiler_dir = compiler
+        .parent()
+        .ok_or_else(|| anyhow!("Compiler path '{}' has no parent", compiler.display()))?;
+    let toolchain_root = compiler_dir
+        .parent()
+        .ok_or_else(|| anyhow!("Compiler path '{}' has no toolchain dir", compiler.display()))?;
+    let sysroot = toolchain_root.join("xtensa-esp-elf");
+    let gcc_include = toolchain_root.join("lib/gcc/xtensa-esp-elf/15.2.0/include");
+    let mbedtls_port_include = esp_idf_dir.join("components/mbedtls/port/include");
+
+    let mut args = vec![
+        format!("--gcc-toolchain={}", toolchain_root.display()),
+        format!("--sysroot={}", sysroot.display()),
+    ];
+
+    if gcc_include.exists() {
+        args.push(format!("-I{}", gcc_include.display()));
+    }
+
+    if mbedtls_port_include.exists() {
+        args.push(format!("-I{}", mbedtls_port_include.display()));
+    }
+
+    Ok(args)
 }
 
 // Generate `sdkconfig.defaults` content based on the crate manifest (`Cargo.toml`).

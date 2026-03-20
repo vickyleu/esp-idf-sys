@@ -115,12 +115,15 @@ fn main() -> anyhow::Result<()> {
             .clang_args(build_output.components.clang_args())
             .clang_args(vec![
                 "-target",
-                if mcu != "esp32" && mcu != "esp32s2" && mcu != "esp32s3" {
+                if mcu == "esp32s3" {
+                    "xtensa-esp32s3-elf"
+                } else if mcu == "esp32s2" {
+                    "xtensa-esp32s2-elf"
+                } else if mcu == "esp32" {
+                    "xtensa-esp32-elf"
+                } else {
                     // Necessary to pass explicitly, because of https://github.com/rust-lang/rust-bindgen/issues/1555
                     "riscv32"
-                } else {
-                    // We don't really have a similar issue with Xtensa, but we pass it explicitly as well just in case
-                    "xtensa"
                 },
             ]))
     };

@@ -272,6 +272,7 @@
 #endif
 
 #ifdef ESP_IDF_COMP_MBEDTLS_ENABLED
+#if ESP_IDF_VERSION_MAJOR < 6
 #include "mbedtls/ssl.h"
 #include "mbedtls/aes.h"
 #include "mbedtls/cipher.h"
@@ -281,6 +282,7 @@
 #include "mbedtls/ecdh.h"
 #include "mbedtls/ecp.h"
 #include "mbedtls/debug.h"
+#endif
 
 #ifdef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
 #include "esp_crt_bundle.h"
@@ -291,7 +293,9 @@
 
 // See https://github.com/espressif/esp-idf/issues/12541
 #ifdef CONFIG_ESP_TLS_USING_MBEDTLS
+#if ESP_IDF_VERSION_MAJOR < 6
 #include "mbedtls/ssl.h"
+#endif
 #elif CONFIG_ESP_TLS_USING_WOLFSSL
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/ssl.h"
